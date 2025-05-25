@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Record System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .hidden {
+            display: none;
+        }
+
+        /* Auth Container */
+        .auth-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .auth-forms {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            background-color: white;
+        }
+
+        .auth-form {
+            width: 100%;
+            max-width: 400px;
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .form-header h2 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-header p {
+            color: #7f8c8d;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-with-icon i.other {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+        }
+
+        .input-with-icon input,
+        .input-with-icon select {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .input-with-icon input:focus,
+        .input-with-icon select:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #7f8c8d;
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .remember-me input {
+            margin-right: 8px;
+        }
+
+        #forgot-password {
+            color: #3498db;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .auth-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #7f8c8d;
+        }
+
+        .form-footer a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        /* Password Strength */
+        .password-strength {
+            margin-top: 0.5rem;
+        }
+
+        .strength-meter {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 0.25rem;
+        }
+
+        .strength-bar {
+            flex: 1;
+            height: 4px;
+            background-color: #e0e0e0;
+            border-radius: 2px;
+        }
+
+        .strength-text {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+
+        #strength-value {
+            font-weight: 500;
+        }
+
+        /* Auth Welcome */
+        .auth-welcome {
+            flex: 1;
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .welcome-content {
+            max-width: 500px;
+        }
+
+        .welcome-content h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .welcome-content p {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .features {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .feature i {
+            font-size: 1.5rem;
+        }
+
+        /* Modals */
+        .overall-grades-modal,
+        .profile-modal,
+        .success-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #7f8c8d;
+        }
+
+        #overall-grades-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        #overall-grades-table th,
+        #overall-grades-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        #overall-grades-table th {
+            background-color: #f9f9f9;
+        }
+
+        #print-overall-btn {
+            margin-top: 1rem;
+            padding: 8px 16px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Success Modal */
+        .success-modal .modal-content {
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            color: #2ecc71;
+            margin-bottom: 1rem;
+        }
+
+        .success-modal h2 {
+            color: #2ecc71;
+            margin-bottom: 1rem;
+        }
+
+        .success-modal p {
+            margin-bottom: 2rem;
+            color: #7f8c8d;
+        }
+
+        /* Animation */
+        .success-modal .modal-content {
+            transform: translateY(-50px);
+            opacity: 0;
+            transition: all 0.3s ease-out;
+        }
+
+        .success-modal.show .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .success-modal {
+            transition: background-color 0.3s ease;
+            background-color: rgba(0, 0, 0, 0);
+        }
+
+        .success-modal.show {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Login/Signup Forms -->
+    <div class="auth-container" id="auth-container">
+        <div class="auth-forms">
+            <!-- Login Form -->
+            <div class="auth-form active" id="login-form">
+                <div class="form-header">
+                    <h2>Teacher Login</h2>
+                    <p>Enter your credentials to access the system</p>
+                </div>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="login-email">Email</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-envelope other"></i>
+                            <input type="email" id="login-email" placeholder="teacher@school.edu" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-lock other"></i>
+                            <input type="password" id="login-password" placeholder="Enter your password" required>
+                            <i class="fas fa-eye toggle-password" data-target="login-password"></i>
+                        </div>
+                    </div>
+                    <div class="form-options">
+                        <label class="remember-me">
+                            <input type="checkbox" id="remember-me">
+                            <span>Remember me</span>
+                        </label>
+                        <a href="#" id="forgot-password">Forgot password?</a>
+                    </div>
+                    <button type="submit" class="auth-btn">Login</button>
+                    <div class="form-footer">
+                        <p>Don't have an account? <a href="#" id="show-signup">Sign up</a></p>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Signup Form -->
+            <div class="auth-form" id="signup-form">
+                <div class="form-header">
+                    <h2>Teacher Registration</h2>
+                    <p>Create your account to start using the system</p>
+                </div>
+                <form id="signupForm">
+                    <div class="form-group">
+                        <label for="signup-name">Full Name</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-user other"></i>
+                            <input type="text" id="signup-name" placeholder="Jhomel Red" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-email">Email</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-envelope other"></i>
+                            <input type="email" id="signup-email" placeholder="teacher@school.edu" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-department">Department</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-building other"></i>
+                            <select id="signup-department" required>
+                                <option value="">Select Department</option>
+                                <option value="math">Mathematics</option>
+                                <option value="science">Science</option>
+                                <option value="english">English</option>
+                                <option value="history">History</option>
+                                <option value="arts">Arts</option>
+                                <option value="pe">Physical Education</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-password">Password</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-lock other"></i>
+                            <input type="password" id="signup-password" placeholder="Create a password" required>
+                            <i class="fas fa-eye toggle-password" data-target="signup-password"></i>
+                        </div>
+                        <div class="password-strength">
+                            <div class="strength-meter">
+                                <span class="strength-bar"></span>
+                                <span class="strength-bar"></span>
+                                <span class="strength-bar"></span>
+                            </div>
+                            <span class="strength-text">Password Strength: <span id="strength-value">Weak</span></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-confirm-password">Confirm Password</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-lock other"></i>
+                            <input type="password" id="signup-confirm-password" placeholder="Confirm your password" required>
+                            <i class="fas fa-eye toggle-password" data-target="signup-confirm-password"></i>
+                        </div>
+                    </div>
+                    <button type="submit" class="auth-btn">Register</button>
+                    <div class="form-footer">
+                        <p>Already have an account? <a href="#" id="show-login">Login</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="auth-welcome">
+            <div class="welcome-content">
+                <h1>Class Record System</h1>
+                <p>Efficiently manage your students' grades and academic records</p>
+                <div class="features">
+                    <div class="feature">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Track student progress</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-calculator"></i>
+                        <span>Calculate grades automatically</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-print"></i>
+                        <span>Generate reports</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application Container -->
+    <div class="container" id="main-container" style="display: none;">
+        <header>
+            <h1>Class Record System</h1>
+            <div class="header-controls">
+                <div class="term-selector">
+                    <button id="midterm-btn" class="active">Midterm</button>
+                    <button id="finalterm-btn">Final Term</button>
+                </div>
+                <div class="profile-dropdown">
+                    <button id="profile-btn">
+                        <i class="fas fa-user-circle"></i>
+                        <span id="profile-name">Teacher</span>
+                        <i class="fas fa-caret-down"></i>
+                    </button>
+                    <div class="dropdown-content">
+                        <a href="#" id="profile-settings-btn">Profile Settings</a>
+                        <a href="#" id="logout-btn">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="student-management">
+                    <h2>Student Management</h2>
+                    <div class="form-group">
+                        <input type="text" id="student-id" placeholder="Student ID">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="student-name" placeholder="Full Name">
+                    </div>
+                    <div class="form-group">
+                        <select id="grade-category">
+                            <option value="">Select Category</option>
+                            <option value="quiz">Quiz</option>
+                            <option value="activities">Activities</option>
+                            <option value="major-exams">Major Exams</option>
+                            <option value="project">Project</option>
+                            <option value="assignments">Assignments</option>
+                            <option value="recitation">Recitation</option>
+                            <option value="character">Character</option>
+                            <option value="attendance">Attendance</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <input type="number" id="grade-score" placeholder="Score">
+                    </div>
+                    <div class="form-group">
+                        <input type="number" id="grade-max" placeholder="Max Score">
+                    </div>
+                    <div class="button-group">
+                        <button id="add-grade-btn">Add Grade</button>
+                        <button id="update-grade-btn" disabled>Update Grade</button>
+                        <button id="clear-btn">Clear</button>
+                    </div>
+                </div>
+
+                <div class="student-list-container">
+                    <h2>Students</h2>
+                    <div class="search-box">
+                        <input type="text" id="search-student" placeholder="Search student...">
+                    </div>
+                    <div class="student-list" id="student-list">
+                        <!-- Students will be listed here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div class="grades-display">
+                    <div class="grades-header">
+                        <h2 id="grades-title">Midterm Grades</h2>
+                        <div class="grade-categories">
+                            <button class="category-btn active" data-category="all">All</button>
+                            <button class="category-btn" data-category="quiz">Quiz</button>
+                            <button class="category-btn" data-category="activities">Activities</button>
+                            <button class="category-btn" data-category="major-exams">Major Exams</button>
+                            <button class="category-btn" data-category="project">Project</button>
+                            <button class="category-btn" data-category="assignments">Assignments</button>
+                            <button class="category-btn" data-category="recitation">Recitation</button>
+                            <button class="category-btn" data-category="character">Character</button>
+                            <button class="category-btn" data-category="attendance">Attendance</button>
+                        </div>
+                    </div>
+                    <div class="grades-table-container">
+                        <table id="grades-table">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Score</th>
+                                    <th>Max Score</th>
+                                    <th>Percentage</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="grades-body">
+                                <!-- Grades will be displayed here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="grade-summary">
+                    <h2>Grade Summary</h2>
+                    <div class="summary-cards">
+                        <div class="summary-card">
+                            <h3>Quizzes (20%)</h3>
+                            <div class="grade-value" id="quiz-grade">0.00</div>
+                            <div class="equivalent" id="quiz-equivalent">-</div>
+                        </div>
+                        <div class="summary-card">
+                            <h3>Activities (20%)</h3>
+                            <div class="grade-value" id="activities-grade">0.00</div>
+                            <div class="equivalent" id="activities-equivalent">-</div>
+                        </div>
+                        <div class="summary-card">
+                            <h3>Major Exams (20%)</h3>
+                            <div class="grade-value" id="exams-grade">0.00</div>
+                            <div class="equivalent" id="exams-equivalent">-</div>
+                        </div>
+                        <div class="summary-card">
+                            <h3>Projects (15%)</h3>
+                            <div class="grade-value" id="project-grade">0.00</div>
+                            <div class="equivalent" id="project-equivalent">-</div>
+                        </div>
+                        <div class="summary-card">
+                            <h3>Assignments (10%)</h3>
+                            <div class="grade-value" id="assignments-grade">0.00</div>
+                            <div class="equivalent" id="assignments-equivalent">-</div>
+                        </div>
+                        <div class="summary-card">
+                            <h3>Recitation (5%)</h3>
+                            <div class="grade-value" id="recitation-grade">0.00</div>
+                            <div class="equivalent" id="recitation-equivalent">-</div>
+                        </div>
+                        <div class="summary-card">
+                            <h3>Character (5%)</h3>
+                            <div class="grade-value" id="character-grade">0.00</div>
+                            <div class="equivalent" id="character-equivalent">-</div>
+                        </div>
+                        <div class="summary-card">
+                            <h3>Attendance (5%)</h3>
+                            <div class="grade-value" id="attendance-grade">0.00</div>
+                            <div class="equivalent" id="attendance-equivalent">-</div>
+                        </div>
+                    </div>
+                    <div class="final-grade-card">
+                        <h3 id="term-display">Midterm Grade</h3>
+                        <div class="final-grade-value" id="final-grade">0.00</div>
+                        <div class="final-equivalent" id="final-equivalent">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overall Grades Modal -->
+        <div class="overall-grades-modal" id="overall-modal">
+            <div class="modal-content">
+                <span class="close-btn" id="close-modal">&times;</span>
+                <h2>Overall Grades</h2>
+                <table id="overall-grades-table">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Midterm Grade</th>
+                            <th>Final Term Grade</th>
+                            <th>Overall Grade</th>
+                        </tr>
+                    </thead>
+                    <tbody id="overall-grades-body">
+                        <!-- Overall grades will be displayed here -->
+                    </tbody>
+                </table>
+                <button id="print-overall-btn">Print Overall Grades</button>
+            </div>
+        </div>
+
+        <!-- Profile Modal -->
+        <div class="profile-modal" id="profile-modal">
+            <div class="modal-content">
+                <span class="close-btn" id="close-profile-modal">&times;</span>
+                <h2>Profile Settings</h2>
+                <form id="profile-form">
+                    <div class="form-group">
+                        <label for="teacher-name">Full Name</label>
+                        <input type="text" id="teacher-name" placeholder="Enter your full name">
+                    </div>
+                    <div class="form-group">
+                        <label for="teacher-email">Email</label>
+                        <input type="email" id="teacher-email" placeholder="Enter your email" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="teacher-department">Department</label>
+                        <select id="teacher-department">
+                            <option value="math">Mathematics</option>
+                            <option value="science">Science</option>
+                            <option value="english">English</option>
+                            <option value="history">History</option>
+                            <option value="arts">Arts</option>
+                            <option value="pe">Physical Education</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="teacher-password">New Password</label>
+                        <input type="password" id="teacher-password" placeholder="Leave blank to keep current">
+                    </div>
+                    <div class="form-group">
+                        <label for="teacher-confirm-password">Confirm Password</label>
+                        <input type="password" id="teacher-confirm-password" placeholder="Confirm new password">
+                    </div>
+                    <div class="button-group">
+                        <button type="submit" id="save-profile-btn">Save Changes</button>
+                        <button type="button" id="cancel-profile-btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <button id="view-overall-btn">View Overall Grades</button>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="success-modal" id="success-modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-success-modal">&times;</span>
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2 id="success-title">Success!</h2>
+            <p id="success-message"></p>
+            <button id="success-ok-btn" class="auth-btn">OK</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // DOM Elements
+        const authContainer = document.getElementById('auth-container');
+        const mainContainer = document.getElementById('main-container');
+        const loginForm = document.getElementById('loginForm');
+        const signupForm = document.getElementById('signupForm');
+        const showSignup = document.getElementById('show-signup');
+        const showLogin = document.getElementById('show-login');
+        const profileName = document.getElementById('profile-name');
+        const logoutBtn = document.getElementById('logout-btn');
+        const profileForm = document.getElementById('profile-form');
+        const profileModal = document.getElementById('profile-modal');
+        const profileSettingsBtn = document.getElementById('profile-settings-btn');
+        const closeProfileModal = document.getElementById('close-profile-modal');
+        const cancelProfileBtn = document.getElementById('cancel-profile-btn');
+        const successModal = document.getElementById('success-modal');
+        const closeSuccessModal = document.getElementById('close-success-modal');
+        const successOkBtn = document.getElementById('success-ok-btn');
+        const successTitle = document.getElementById('success-title');
+        const successMessage = document.getElementById('success-message');
+        const passwordInput = document.getElementById('signup-password');
+        const strengthBars = document.querySelectorAll('.strength-bar');
+        const strengthText = document.getElementById('strength-value');
+
+        // Data Storage
+        const userAccounts = JSON.parse(localStorage.getItem('userAccounts')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+
+        // Initialize the application
+        function init() {
+            // Check if user is already logged in
+            if (currentUser) {
+                authContainer.style.display = 'none';
+                mainContainer.style.display = 'block';
+                profileName.textContent = currentUser.name;
+            } else {
+                // Check for remembered email
+                const rememberedEmail = localStorage.getItem('rememberedUser');
+                if (rememberedEmail) {
+                    document.getElementById('login-email').value = rememberedEmail;
+                    document.getElementById('remember-me').checked = true;
+                }
+            }
+        }
+
+        // Password Strength Indicator
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            const strength = calculatePasswordStrength(password);
+            updateStrengthIndicator(strength);
+        });
+
+        function calculatePasswordStrength(password) {
+            let strength = 0;
+            
+            // Length check
+            if (password.length >= 8) strength += 1;
+            if (password.length >= 12) strength += 1;
+            
+            // Character variety checks
+            if (/[A-Z]/.test(password)) strength += 1; // Uppercase letters
+            if (/[a-z]/.test(password)) strength += 1; // Lowercase letters
+            if (/[0-9]/.test(password)) strength += 1; // Numbers
+            if (/[^A-Za-z0-9]/.test(password)) strength += 1; // Special characters
+            
+            return Math.min(strength, 5);
+        }
+
+        function updateStrengthIndicator(strength) {
+            // Reset all bars
+            strengthBars.forEach(bar => {
+                bar.style.backgroundColor = '#e0e0e0';
+            });
+            
+            // Determine how many bars to show (map 0-5 to 0-3)
+            const barsToShow = Math.ceil(strength / 2);
+            let strengthLabel = '';
+            let color = '';
+            
+            if (strength <= 1) {
+                strengthLabel = 'Weak';
+                color = '#ff5252'; // Red
+            } else if (strength <= 3) {
+                strengthLabel = 'Medium';
+                color = '#ffb74d'; // Orange
+            } else {
+                strengthLabel = 'Strong';
+                color = '#4caf50'; // Green
+            }
+            
+            // Update the bars
+            for (let i = 0; i < barsToShow; i++) {
+                strengthBars[i].style.backgroundColor = color;
+            }
+            
+            // Update the text
+            strengthText.textContent = strengthLabel;
+            strengthText.style.color = color;
+        }
+
+        // Form Toggle
+        showSignup.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('login-form').classList.remove('active');
+            document.getElementById('signup-form').classList.add('active');
+        });
+
+        showLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('signup-form').classList.remove('active');
+            document.getElementById('login-form').classList.add('active');
+        });
+
+        // Registration
+        signupForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const department = document.getElementById('signup-department').value;
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('signup-confirm-password').value;
+            
+            // Validation
+            if (password !== confirmPassword) {
+                alert('Passwords do not match!');
+                return;
+            }
+            
+            if (userAccounts.some(user => user.email === email)) {
+                alert('An account with this email already exists!');
+                return;
+            }
+            
+            // Create new user
+            const newUser = {
+                name,
+                email,
+                department,
+                password,
+                createdAt: new Date().toISOString()
+            };
+            
+            // Save user
+            userAccounts.push(newUser);
+            localStorage.setItem('userAccounts', JSON.stringify(userAccounts));
+            
+            // Show success message
+            showSuccessModal('Registration Successful!', 'Your account has been created successfully. Please login with your credentials.');
+            
+            // Switch to login form
+            document.getElementById('login-form').classList.add('active');
+            document.getElementById('signup-form').classList.remove('active');
+            document.getElementById('login-email').value = email;
+            document.getElementById('login-password').focus();
+            
+            // Reset form
+            signupForm.reset();
+        });
+
+        // Login
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const rememberMe = document.getElementById('remember-me').checked;
+            
+            // Find user
+            const user = userAccounts.find(user => user.email === email && user.password === password);
+            
+            if (user) {
+                currentUser = user;
+                
+                // Remember user if requested
+                if (rememberMe) {
+                    localStorage.setItem('rememberedUser', email);
+                } else {
+                    localStorage.removeItem('rememberedUser');
+                }
+                
+                // Save current user
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                // Show success modal
+                showSuccessModal('Login Successful!', `Welcome back, ${user.name}! You are now logged in.`);
+                
+                // Set up OK button to proceed to main app
+                successOkBtn.onclick = () => {
+                    hideSuccessModal();
+                    authContainer.style.display = 'none';
+                    mainContainer.style.display = 'block';
+                    profileName.textContent = currentUser.name;
+                };
+                
+                // Reset form
+                loginForm.reset();
+            } else {
+                alert('Invalid email or password!');
+            }
+        });
+
+        // Profile Management
+        profileSettingsBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (currentUser) {
+                document.getElementById('teacher-name').value = currentUser.name;
+                document.getElementById('teacher-email').value = currentUser.email;
+                document.getElementById('teacher-department').value = currentUser.department;
+                document.getElementById('teacher-password').value = '';
+                document.getElementById('teacher-confirm-password').value = '';
+                profileModal.style.display = 'flex';
+            }
+        });
+
+        // Close profile modal
+        closeProfileModal.addEventListener('click', () => {
+            profileModal.style.display = 'none';
+        });
+
+        cancelProfileBtn.addEventListener('click', () => {
+            profileModal.style.display = 'none';
+        });
+
+        // Save profile changes
+        profileForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            if (!currentUser) return;
+            
+            const name = document.getElementById('teacher-name').value;
+            const department = document.getElementById('teacher-department').value;
+            const newPassword = document.getElementById('teacher-password').value;
+            const confirmPassword = document.getElementById('teacher-confirm-password').value;
+            
+            // Update user data
+            currentUser.name = name;
+            currentUser.department = department;
+            
+            // Update password if provided and matches
+            if (newPassword) {
+                if (newPassword === confirmPassword) {
+                    currentUser.password = newPassword;
+                } else {
+                    alert('Passwords do not match!');
+                    return;
+                }
+            }
+            
+            // Update in user accounts
+            const userIndex = userAccounts.findIndex(user => user.email === currentUser.email);
+            if (userIndex !== -1) {
+                userAccounts[userIndex] = currentUser;
+                localStorage.setItem('userAccounts', JSON.stringify(userAccounts));
+            }
+            
+            // Update current user
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            profileName.textContent = currentUser.name;
+            
+            // Close modal
+            profileModal.style.display = 'none';
+            
+            // Show success message
+            showSuccessModal('Profile Updated', 'Your profile has been updated successfully!');
+        });
+
+        // Logout
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            // Clear current user
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            
+            // Show auth container
+            authContainer.style.display = 'flex';
+            mainContainer.style.display = 'none';
+            
+            // Reset login form
+            document.getElementById('login-form').classList.add('active');
+            document.getElementById('signup-form').classList.remove('active');
+            loginForm.reset();
+        });
+
+        // Success Modal Functions
+        function showSuccessModal(title, message) {
+            successTitle.textContent = title;
+            successMessage.textContent = message;
+            successModal.style.display = 'flex';
+            
+            // Trigger animation
+            setTimeout(() => {
+                successModal.classList.add('show');
+            }, 10);
+        }
+
+        function hideSuccessModal() {
+            successModal.classList.remove('show');
+            
+            // Wait for animation to complete before hiding
+            setTimeout(() => {
+                successModal.style.display = 'none';
+            }, 300);
+        }
+
+        // Close success modal
+        closeSuccessModal.addEventListener('click', hideSuccessModal);
+        successOkBtn.addEventListener('click', hideSuccessModal);
+
+        window.addEventListener('click', (e) => {
+            if (e.target === successModal) {
+                hideSuccessModal();
+            }
+        });
+
+        // Toggle password visibility
+        document.querySelectorAll('.toggle-password').forEach(icon => {
+            icon.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const input = document.getElementById(targetId);
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    this.classList.remove('fa-eye');
+                    this.classList.add('fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    this.classList.remove('fa-eye-slash');
+                    this.classList.add('fa-eye');
+                }
+            });
+        });
+
+        // Initialize the application
+        init();
+    </script>
+</body>
+</html>
